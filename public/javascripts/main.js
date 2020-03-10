@@ -4,21 +4,36 @@ let nitactual = 0
 let nombre = 0
 let valor = 0
 estado = false
+esperando = false
+listaOfertas = []
 
 socket.on("messages", data => {
     render(data);
 });
 
+socket.on("lista", data => {
+    listaOfertas = data;
+});
+
 socket.on("boton", data => {
     estado = data;
+    document.getElementById("butofertar").disabled = estado;
 });
+
+function deactivateButton() {
+
+    setTimeout(()=>{ 
+        if(!estado){
+            document.getElementById("butofertar").disabled = false;
+        }
+        console.log("terminan 30");
+     }, 30000);
+  }
 
 function render(data) {
     let html = data.map((e, i) => {
         return (`
-        <div>
-            <strong>${e.razonsocial}</strong>
-            <em>${e.gano}</em>
+        <div>`+renderIndiv(e)+`
         </div>
         `);
     }).join(" ");
@@ -26,15 +41,21 @@ function render(data) {
     document.getElementById("messages").innerHTML = html;
 }
 
+function renderIndiv(e){
+    if(e.gano == false){
+        return( `<p>${e.razonsocial}  [Oferta no aceptada]</p>`);
+    }
+    else{
+        return( `<p>${e.razonsocial}  <strong>[Oferta aceptada. Valor: $${e.valor} ] </strong> </p>`);
+    }
     
-
+}
 
 function registrarse() {
-    console.log("hola")
 
     nitactual = document.getElementById("nit").value;
     nombre = document.getElementById("razonsocial").value
-    console.log(nitactual)
+    
     console.log("Guardando nuevo participante");
 
     document.getElementById("nit").value = "";
@@ -47,7 +68,17 @@ function registrarse() {
     }
 
     document.getElementById("butreg").disabled = true;
-    document.getElementById("butofertar").disabled = estado;
+
+    console.log(estado);
+    if(!estado){
+
+        document.getElementById("estadoregistro").innerHTML = "Registro exitoso. Nit:" + nitactual +" ,razón social:" + nombre;
+        document.getElementById("butofertar").disabled = false;
+    }
+    else{
+        document.getElementById("estadoregistro").innerHTML = "No se pudo registrar porque la licitación ya tiene un ganador"; 
+    }
+    
 
     return false;
 }
@@ -57,15 +88,33 @@ function addMessage() {
     let problic = (Math.floor(Math.random() * 80) + 30) / 100;
     let probganar = (Math.floor(Math.random() * 80) + 30) / 100;
 
+    
+    let vala = 0;
+    let val = 150000000 + vala;
+
+    socket.emit("listar"); //buscamos la lista
+    if(listaOfertas.length>0){
+        var result = listaOfertas.map(function(e) {
+            return e.valor;
+          })
+        let maximo = Math.max(...result);
+        console.log(maximo);
+        
+        vala = (Math.floor(Math.random() * 10000000) + 5000000);
+        val = maximo + vala;
+    }
+
     let gano = false
     if (probganar > problic) {
         gano = true
+        socket.emit("new-boton",gano); //avisamos que esta persona ganó
     }
-    let vala = (Math.floor(Math.random() * 10000000) + 5000000);
-
+    else if(probganar <= problic){
+        document.getElementById("butofertar").disabled = true;
+        deactivateButton();
+    }
+   
     console.log(gano);
-
-    let val = 150000000 + vala;
 
     let message = {
         nit: nitactual,
@@ -73,9 +122,12 @@ function addMessage() {
         valor: val,
         gano: gano
     };
+
     console.log("Emitting new offer");
     socket.emit("new-message", message);
-    socket.emit("new-boton", gano);
+
+    document.getElementById("valoroferta").innerHTML = "Usted hizo una oferta por: $"+val;
+    
 
     return false;
 }

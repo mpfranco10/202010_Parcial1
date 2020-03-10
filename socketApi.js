@@ -5,7 +5,7 @@ var socketApi = {};
 
 socketApi.io = io;
 
-ejemplos = [{nit: 1, razonsocial: "hola2", valor: 124, gano: false}];
+ejemplos = [];
 
 boton = false;
 
@@ -15,20 +15,19 @@ io.on('connection', function (socket) {
 
     io.sockets.emit('messages', ejemplos);
     io.sockets.emit("boton", boton);
-
-    //esto seria lo del timer, que no termine
-    socket.on('reset', function (data) {
-        countdown = 1000;
-        io.sockets.emit('timer', { countdown: countdown });
-      });
-
+    io.sockets.emit('lista', ejemplos);
 
     socket.on("new-message" , data => {
         ejemplos.push(data);
-        socketApi.sendNotification(ejemplos)
+        socketApi.sendNotification(ejemplos);
+        io.sockets.emit('lista', ejemplos);
     })
 
-    //compartir el estado del boton
+    socket.on("listar" , () => {
+        socketApi.sendList();
+    })
+
+    //Cambiar el estado del botón y avisar a todos el estado del botón
     socket.on("new-boton" , data => {
         boton = data;
         socketApi.sendNotificationBoton(boton)
@@ -43,16 +42,16 @@ socketApi.sendNotificationBoton = data => {
     
 }
 
+socketApi.sendList = () => {
+   
+    io.sockets.emit('lista', ejemplos);
+    
+}
+
 socketApi.sendNotification = data => {
    
     io.sockets.emit('messages', data);
     
 }
-
-var countdown = 30;
-setInterval(function() {
-  countdown--;
-  io.sockets.emit('timer', { countdown: countdown });
-}, 30);
 
 module.exports = socketApi;

@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
         integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 
-    <title>Hello, world!</title>
+    <title>Alcaldia Municipal</title>
 </head>
 
 <body>
@@ -41,12 +41,12 @@
         </ol>
         <hr />
         <h2>Formulario de inscripción</h2>
-        <form  id="inscri" onsubmit="event.preventDefault(); registrarse()">
+        <form id="inscri" onsubmit="event.preventDefault(); registrarse()">
             <div class="form-group">
                 <label for="nit">NIT</label>
                 <input type="text" class="form-control" id="nit" placeholder="Número de Identificación Tributaria">
             </div>
-            <div class="form-group" >
+            <div class="form-group">
                 <label for="razonsocial">Razón Social</label>
                 <input type="text" class="form-control" id="razonsocial" placeholder="Nombre del participante">
 
@@ -56,6 +56,7 @@
             </div>
             <button id="butreg" type="submit" class="btn btn-primary">Registrarse</button>
         </form>
+        <p id="estadoregistro"></p>
         <hr />
         <h2>Listado de ofertas</h2>
         <!--Reemplace estos párrafos por las ofertas reales recibidas-->
@@ -65,11 +66,12 @@
         </div>
 
         <button id="butofertar" class="btn btn-primary" onClick="addMessage()" disabled>Ofertar</button>
+        <p id="valoroferta"></p>
 
-        </br>
 
     </div>
-
+    </br>
+    </br>
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
